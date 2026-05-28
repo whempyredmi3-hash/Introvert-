@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Seedance Video Generator — INTROVERT DREAMS</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">音</span>
+      <div>
+        <h1>Seedance Generator</h1>
+        <p class="tagline">INTROVERT DREAMS · BytePlus / Volcengine ARK</p>
+      </div>
+    </div>
+    <div class="credit-box" title="Sisa kredit">
+      <span class="credit-label">Sisa Kredit</span>
+      <span class="credit-value" id="creditValue">0</span>
+      <button class="credit-edit" id="editCreditBtn" title="Edit sisa kredit">edit</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <h2>Generate Video</h2>
+
+      <label class="field">
+        <span>Prompt</span>
+        <textarea
+          id="prompt"
+          rows="6"
+          placeholder="Masukkan prompt video (Mandarin / English / Japanese onomatopoeia)..."
+          maxlength="1500"
+        ></textarea>
+        <div class="hint">
+          <span id="promptCount">0</span> / 1500 karakter
+        </div>
+      </label>
+
+      <div class="row">
+        <label class="field">
+          <span>Model</span>
+          <select id="model">
+            <option value="doubao-seedance-1-0-pro-250528">Seedance 1.0 Pro</option>
+            <option value="doubao-seedance-1-0-lite-t2v-250428">Seedance 1.0 Lite (T2V)</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Resolusi</span>
+          <select id="resolution">
+            <option value="480p">480p</option>
+            <option value="720p" selected>720p</option>
+            <option value="1080p">1080p</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Durasi (detik)</span>
+          <select id="duration">
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="15" selected>15</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Aspect Ratio</span>
+          <select id="ratio">
+            <option value="16:9" selected>16:9</option>
+            <option value="9:16">9:16</option>
+            <option value="1:1">1:1</option>
+            <option value="4:3">4:3</option>
+            <option value="3:4">3:4</option>
+            <option value="21:9">21:9</option>
+            <option value="1.43:1">1.43:1 (IMAX)</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="row">
+        <label class="field">
+          <span>Seed (opsional)</span>
+          <input type="number" id="seed" placeholder="random jika kosong" />
+        </label>
+        <label class="field checkbox-field">
+          <input type="checkbox" id="camerafixed" />
+          <span>Camera Fixed</span>
+        </label>
+        <label class="field checkbox-field">
+          <input type="checkbox" id="watermark" />
+          <span>Watermark</span>
+        </label>
+      </div>
+
+      <div class="cost-bar">
+        <div>
+          <div class="cost-label">Biaya generate</div>
+          <div class="cost-value"><span id="costValue">225</span> kredit</div>
+        </div>
+        <div class="cost-formula" id="costFormula">15 kredit/detik × 15 detik</div>
+      </div>
+
+      <div class="actions">
+        <button class="btn-primary" id="generateBtn">Generate</button>
+        <button class="btn-ghost" id="demoBtn" title="Simulasi tanpa memanggil API">Demo Mode</button>
+      </div>
+
+      <div class="status hidden" id="status"></div>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <h2>Hasil</h2>
+        <button class="btn-link" id="clearHistoryBtn">Hapus riwayat</button>
+      </div>
+      <div id="history" class="history">
+        <p class="empty">Belum ada hasil. Generate video pertamamu di atas.</p>
+      </div>
+    </section>
+
+    <section class="card collapsible">
+      <details>
+        <summary><h2 style="display:inline-block;margin:0">Pengaturan API</h2></summary>
+        <label class="field">
+          <span>API Key (BytePlus ARK)</span>
+          <input type="password" id="apiKey" placeholder="Bearer token dari ark.bytepluses.com" autocomplete="off" />
+          <div class="hint">Disimpan lokal di browser kamu (localStorage). Jangan share device.</div>
+        </label>
+
+        <label class="field">
+          <span>Endpoint</span>
+          <select id="endpointPreset">
+            <option value="https://ark.ap-southeast.bytepluses.com/api/v3/contents/generations/tasks">BytePlus (ap-southeast)</option>
+            <option value="https://ark.cn-beijing.volces.com/api/v3/contents/generations/tasks">Volcengine (cn-beijing)</option>
+            <option value="custom">Custom...</option>
+          </select>
+          <input type="text" id="endpointCustom" class="hidden" placeholder="https://..." />
+        </label>
+
+        <details class="pricing-editor">
+          <summary>Edit tabel harga (kredit/detik)</summary>
+          <div class="pricing-grid">
+            <div>
+              <h4>Seedance 1.0 Pro</h4>
+              <label>480p <input type="number" id="price-pro-480" /></label>
+              <label>720p <input type="number" id="price-pro-720" /></label>
+              <label>1080p <input type="number" id="price-pro-1080" /></label>
+            </div>
+            <div>
+              <h4>Seedance 1.0 Lite</h4>
+              <label>480p <input type="number" id="price-lite-480" /></label>
+              <label>720p <input type="number" id="price-lite-720" /></label>
+              <label>1080p <input type="number" id="price-lite-1080" /></label>
+            </div>
+          </div>
+          <button class="btn-ghost" id="savePricingBtn">Simpan harga</button>
+          <button class="btn-link" id="resetPricingBtn">Reset default</button>
+        </details>
+
+        <div class="cors-warn">
+          <strong>CORS:</strong> BytePlus/Volcengine API tidak mengirim header CORS, jadi
+          fetch langsung dari browser akan diblokir. Solusinya:
+          <ul>
+            <li>Jalankan halaman ini lewat <em>proxy</em> (mis. Cloudflare Worker yang forward request ke ARK).</li>
+            <li>Atau set field <em>Endpoint</em> ke URL proxy kamu sendiri.</li>
+            <li>Atau pakai <strong>Demo Mode</strong> untuk uji UI tanpa hit API.</li>
+          </ul>
+        </div>
+      </details>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>OTONASHI 「音無し」 · Written &amp; Directed by WHEMPY</span>
+  </footer>
+
+  <dialog id="creditDialog">
+    <form method="dialog">
+      <h3>Atur sisa kredit</h3>
+      <label>
+        Jumlah kredit
+        <input type="number" id="creditInput" min="0" step="1" />
+      </label>
+      <div class="dialog-actions">
+        <button value="cancel">Batal</button>
+        <button value="ok" id="creditOk" class="btn-primary">Simpan</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>
